@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -ex
+
+d=`TZ=UTC date +%Y%m%d%H%M%S`
+
+# set github user config
+git config --global user.name "username"
+git config --global user.email "address"
+
+rails_clone_url=https://github.com/rails/rails.git
+
+base_branch_name=japanese
+head_branch_name=${base_branch_name}-${d}
+
+upstream_branch_name=master
+
+ours_files=(.gitignore .travis.yml Gemfile Gemfile.lock guides/rails_guides.rb guides/assets/javascripts/guides.js guides/assets/stylesheets/main.css)
+deleted_files=(CONTRIBUTING.md .github/issue_template.md .github/pull_request_template.md .github/stale.yml)
+
+cd /usr/src/railsguides.jp
+
+git fetch upstream
+
+git checkout -f ${base_branch_name}
+git reset --hard ${base_branch_name}
+git clean -fd
+git pull origin ${base_branch_name}
+
+git checkout -b ${head_branch_name}
+git merge upstream/${upstream_branch_name} --no-commit || echo "ignore merge conflict error."
+
+unmerged_files=`git ls-files -u | cut -f 2 | sort -u`
+
+for filepath in $unmerged_files
+do
+    if [[ " ${ours_files[@]} " =~ " ${filepath} " ]]; then
+        git checkout --ours $filepath
+        git add $filepath
+    elif [[ " ${deleted_files[@]} " =~ " ${filepath} " ]]; then
+        git rm $filepath
+    else
+        echo "merge failed"
+        exit 1
+    fi
+done
+
+git commit -m "Merge branch '${head_branch_name}' into ${base_branch_name}"
+
+git checkout -f ${base_branch_name}
+git reset --hard ${base_branch_name}
+git clean -fd
+
+if git branch --merged | grep "^[ *] ${head_branch_name}$"; then
+  echo 'Already up-to-date.'
+  exit
+fi
+
+git push origin ${head_branch_name}
+
+cd ../
+ruby create_pull_request.rb ${head_branch_name}
