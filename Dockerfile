@@ -29,6 +29,7 @@ COPY .netrc /usr/src
 # Set auto merge scripts
 COPY import-upstream /usr/src
 COPY create_pull_request.rb /usr/src
+COPY notify_message.html.erb /usr/src
 
 # Set working dir
 WORKDIR /usr/src
