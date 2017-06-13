@@ -10,7 +10,7 @@ RUN apk --update add tzdata && \
     rm -rf /var/cache/apk/*
 
 # to run import-upstream
-RUN apk --update add git openssh bash
+RUN apk --update add git openssh bash curl
 
 # to download hub
 RUN apk --no-cache add openssl
