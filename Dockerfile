@@ -16,7 +16,7 @@ RUN apk --update add git openssh bash curl
 RUN apk --no-cache add openssl
 
 # to send pull request
-RUN gem install octokit
+RUN gem install octokit sinatra faraday
 
 # Set up github config
 RUN mkdir -p /usr/src/.ssh/
@@ -31,6 +31,10 @@ COPY import-upstream /usr/src
 COPY create_pull_request.rb /usr/src
 COPY notify_message.html.erb /usr/src
 
+# Set travis-ci webhook handling server
+COPY config.ru /usr/src/config.ru
+COPY server.rb /usr/src/server.rb
+
 # Set working dir
 WORKDIR /usr/src
 
@@ -39,6 +43,9 @@ RUN cd /usr/src && \
     git clone https://github.com/yasslab/railsguides.jp.git && \
     cd railsguides.jp && \
     git remote add upstream https://github.com/rails/rails.git
+
+# run travis-ci webhook handling server
+CMD rackup -p $PORT -o 0.0.0.0
 
 # Run image as a non-root user
 # ref: https://devcenter.heroku.com/articles/container-registry-and-runtime#run-the-image-as-a-non-root-user
