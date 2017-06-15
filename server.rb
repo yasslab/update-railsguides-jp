@@ -5,6 +5,7 @@ require "json"
 require "faraday"
 require "openssl"
 require "base64"
+require "sequel"
 
 post "/" do
   # Use one of the following depending on the platform that is sending
@@ -76,6 +77,11 @@ def auto_mergeable?(payload)
   return false if payload["author_name"] != ENV["BOT_NAME"]
   return false if payload["repository"]["name"] != ENV["REPOSITORY_NAME"]
   return false if payload["repository"]["owner_name"] != ENV["REPOSITORY_OWNER"]
+  return false if db[:pull_request_history].where(sha: payload["head_commit"]).empty?
 
   true
+end
+
+def db
+  @db ||= Sequel.connect(ENV["DATABASE_URL"])
 end
