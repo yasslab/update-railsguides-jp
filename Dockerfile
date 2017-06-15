@@ -10,13 +10,14 @@ RUN apk --update add tzdata && \
     rm -rf /var/cache/apk/*
 
 # to run import-upstream
-RUN apk --update add git openssh bash curl
+RUN apk --update add git openssh bash curl \
+    build-base ruby-dev postgresql-dev
 
 # to download hub
 RUN apk --no-cache add openssl
 
 # to send pull request
-RUN gem install octokit sinatra faraday
+RUN gem install octokit sinatra faraday sequel pg
 
 # Set up github config
 RUN mkdir -p /usr/src/.ssh/
@@ -30,6 +31,7 @@ COPY .netrc /usr/src
 COPY import-upstream /usr/src
 COPY create_pull_request.rb /usr/src
 COPY notify_message.html.erb /usr/src
+COPY create_database.rb /usr/src
 
 # Set travis-ci webhook handling server
 COPY config.ru /usr/src/config.ru
