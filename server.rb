@@ -29,10 +29,11 @@ post "/" do
     logger.info("verification succeeded")
     payload = JSON.parse(payload)
 
-    if auto_mergeable?(payload)
-      auto_merge(payload)
+    unless auto_mergeable?(payload)
+      halt 200
     end
 
+    auto_merge(payload)
     status 200
   rescue => e
     logger.info "exception=#{e.class} message=\"#{e.message}\""
