@@ -1,6 +1,6 @@
-require 'sequel'
+require "sequel"
 
-DB = Sequel.connect(ENV['DATABASE_URL'])
+DB = Sequel.connect(ENV.fetch("DATABASE_URL"))
 
 unless DB.table_exists?(:pull_request_history)
   DB.create_table(:pull_request_history) do

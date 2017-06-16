@@ -3,22 +3,22 @@ require "octokit"
 require "sequel"
 
 head_branch_name = ARGV.first
-base_branch_name = ENV["BASE_BRANCH_NAME"]
+base_branch_name = ENV.fetch("BASE_BRANCH_NAME")
 
-hook_url = ENV["IDOBATA_HOOK_URL"]
-owner_name = ENV["REPOSITORY_OWNER"]
-repo_name = ENV["REPOSITORY_NAME"]
+hook_url = ENV.fetch("IDOBATA_HOOK_URL")
+owner_name = ENV.fetch("REPOSITORY_OWNER")
+repo_name = ENV.fetch("REPOSITORY_NAME")
 repo = "#{owner_name}/#{repo_name}"
 
 exit(1) if head_branch_name.nil?
 
-client = Octokit::Client.new(access_token: ENV["GITHUB_AUTH_TOKEN"])
+client = Octokit::Client.new(access_token: ENV.fetch("GITHUB_AUTH_TOKEN"))
 
 pr = client.create_pull_request(repo, base_branch_name, head_branch_name, head_branch_name)
 pr_id = pr["number"].to_i
 pr_files = client.pull_request_files(repo, pr_id)
 
-db = Sequel.connect(ENV["DATABASE_URL"])
+db = Sequel.connect(ENV.fetch("DATABASE_URL"))
 
 table = db[:pull_request_history]
 table.insert(sha: pr["head"]["sha"])

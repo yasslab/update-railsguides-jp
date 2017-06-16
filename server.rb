@@ -17,7 +17,7 @@ API_HOST = ENV.fetch("API_HOST", DEFAULT_API_HOST)
 post "/" do
   begin
     payload = params.fetch("payload", "")
-    signature = request.env["HTTP_SIGNATURE"]
+    signature = request.env.fetch("HTTP_SIGNATURE")
 
     pkey = OpenSSL::PKey::RSA.new(public_key)
 
@@ -66,20 +66,20 @@ def public_key
 end
 
 def github_client
-  @client ||= Octokit::Client.new(access_token: ENV["GITHUB_AUTH_TOKEN"])
+  @client ||= Octokit::Client.new(access_token: ENV.fetch("GITHUB_AUTH_TOKEN"))
 end
 
 def auto_mergeable?(payload)
   return false if payload["type"] != "pull_request"
   return false if payload["result_message"] != "Passed"
-  return false if payload["author_name"] != ENV["BOT_NAME"]
-  return false if payload.dig("repository", "name") != ENV["REPOSITORY_NAME"]
-  return false if payload.dig("repository", "owner_name") != ENV["REPOSITORY_OWNER"]
+  return false if payload["author_name"] != ENV.fetch("BOT_NAME")
+  return false if payload.dig("repository", "name") != ENV.fetch("REPOSITORY_NAME")
+  return false if payload.dig("repository", "owner_name") != ENV.fetch("REPOSITORY_OWNER")
   return false if db[:pull_request_history].where(sha: payload["head_commit"]).empty?
 
   true
 end
 
 def db
-  @db ||= Sequel.connect(ENV["DATABASE_URL"])
+  @db ||= Sequel.connect(ENV.fetch("DATABASE_URL"))
 end
