@@ -62,9 +62,7 @@ def public_key
     faraday.adapter Faraday.default_adapter
   end
   response = conn.get "/config"
-  JSON.parse(response.body).dig("config", "notifications", "webhook", "public_key")
-rescue
-  ''
+  JSON.parse(response.body).dig("config", "notifications", "webhook", "public_key") or raise "Not found publickey"
 end
 
 def github_client
