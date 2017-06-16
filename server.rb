@@ -21,33 +21,33 @@ post "/" do
 
     pkey = OpenSSL::PKey::RSA.new(public_key)
 
-    if pkey.verify(OpenSSL::Digest::SHA1.new, Base64.decode64(signature), payload)
-      logger.info("verification succeeded")
-      payload = JSON.parse(payload)
-
-      if auto_mergeable?(payload)
-        pull_request_number = payload["pull_request_number"].to_i
-        repo_name = payload.dig("repository", "name")
-        repo_owner = payload.dig("repository", "owner_name")
-        repo = "#{repo_owner}/#{repo_name}"
-
-        pull_request = github_client.pull_request(repo, pull_request_number)
-        branch_name = pull_request["head"]["ref"]
-
-        github_client.merge_pull_request(repo, pull_request_number)
-        logger.info("Merge branch: #{repo}:#{branch_name}")
-
-        github_client.delete_branch(repo, branch_name)
-        logger.info("Delete branch: #{repo}:#{branch_name}")
-
-        logger.info("Auto merge completed!!")
-      end
-
-      status 200
-    else
+    unless pkey.verify(OpenSSL::Digest::SHA1.new, Base64.decode64(signature), payload)
       logger.info("verification failed")
-      status 400
+      halt 412
     end
+
+    logger.info("verification succeeded")
+    payload = JSON.parse(payload)
+
+    if auto_mergeable?(payload)
+      pull_request_number = payload["pull_request_number"].to_i
+      repo_name = payload.dig("repository", "name")
+      repo_owner = payload.dig("repository", "owner_name")
+      repo = "#{repo_owner}/#{repo_name}"
+
+      pull_request = github_client.pull_request(repo, pull_request_number)
+      branch_name = pull_request["head"]["ref"]
+
+      github_client.merge_pull_request(repo, pull_request_number)
+      logger.info("Merge branch: #{repo}:#{branch_name}")
+
+      github_client.delete_branch(repo, branch_name)
+      logger.info("Delete branch: #{repo}:#{branch_name}")
+
+      logger.info("Auto merge completed!!")
+    end
+
+    status 200
   rescue => e
     logger.info "exception=#{e.class} message=\"#{e.message}\""
     logger.debug e.backtrace.join("\n")
