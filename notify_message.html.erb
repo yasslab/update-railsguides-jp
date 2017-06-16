@@ -1,0 +1,9 @@
+<%= "https://github.com/#{repo}/pull/#{pr_id}" %> にて
+
+監視しているファイルに変更がありました。
+
+<ul>
+<%- files.each do |file| -%>
+  <%= "<li>#{file}</li>" %>
+<%- end -%>
+</ul> 
