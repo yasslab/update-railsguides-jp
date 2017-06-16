@@ -14,20 +14,31 @@ require "sequel"
 DEFAULT_API_HOST = "https://api.travis-ci.org"
 API_HOST = ENV.fetch("API_HOST", DEFAULT_API_HOST)
 
-post "/" do
+before do
   begin
-    payload = params.fetch("payload")
+    @payload = params.fetch("payload")
     signature = request.env.fetch("HTTP_SIGNATURE")
 
     pkey = OpenSSL::PKey::RSA.new(public_key)
 
-    unless pkey.verify(OpenSSL::Digest::SHA1.new, Base64.decode64(signature), payload)
+    unless pkey.verify(OpenSSL::Digest::SHA1.new, Base64.decode64(signature), @payload)
       logger.info("verification failed")
       halt 400
     end
 
     logger.info("verification succeeded")
-    payload = JSON.parse(payload)
+  rescue => e
+    logger.info "exception=#{e.class} message=\"#{e.message}\""
+    logger.debug e.backtrace.join("\n")
+
+    halt 500
+    "exception encountered while verifying signature"
+  end
+end
+
+post "/" do
+  begin
+    payload = JSON.parse(@payload)
 
     unless auto_mergeable?(payload)
       halt 200
@@ -40,7 +51,7 @@ post "/" do
     logger.debug e.backtrace.join("\n")
 
     status 500
-    "exception encountered while verifying signature"
+    "exception encountered while auto merge processing"
   end
 end
 
