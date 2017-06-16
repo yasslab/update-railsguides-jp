@@ -16,7 +16,7 @@ API_HOST = ENV.fetch("API_HOST", DEFAULT_API_HOST)
 
 post "/" do
   begin
-    payload = params.fetch("payload", "")
+    payload = params.fetch("payload")
     signature = request.env.fetch("HTTP_SIGNATURE")
 
     pkey = OpenSSL::PKey::RSA.new(public_key)
