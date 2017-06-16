@@ -23,7 +23,7 @@ post "/" do
 
     unless pkey.verify(OpenSSL::Digest::SHA1.new, Base64.decode64(signature), payload)
       logger.info("verification failed")
-      halt 412
+      halt 400
     end
 
     logger.info("verification succeeded")
