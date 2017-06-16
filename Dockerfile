@@ -13,9 +13,6 @@ RUN apk --update add tzdata && \
 RUN apk --update add git openssh bash curl \
     build-base ruby-dev postgresql-dev
 
-# to download hub
-RUN apk --no-cache add openssl
-
 # to send pull request
 RUN gem install octokit sinatra faraday sequel pg
 
