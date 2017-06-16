@@ -78,7 +78,7 @@ def auto_mergeable?(payload)
   true
 end
 
-def auto_marge(payload)
+def auto_merge(payload)
   pull_request_number = payload["pull_request_number"].to_i
   repo_name = payload.dig("repository", "name")
   repo_owner = payload.dig("repository", "owner_name")
