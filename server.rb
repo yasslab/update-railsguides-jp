@@ -30,21 +30,7 @@ post "/" do
     payload = JSON.parse(payload)
 
     if auto_mergeable?(payload)
-      pull_request_number = payload["pull_request_number"].to_i
-      repo_name = payload.dig("repository", "name")
-      repo_owner = payload.dig("repository", "owner_name")
-      repo = "#{repo_owner}/#{repo_name}"
-
-      pull_request = github_client.pull_request(repo, pull_request_number)
-      branch_name = pull_request["head"]["ref"]
-
-      github_client.merge_pull_request(repo, pull_request_number)
-      logger.info("Merge branch: #{repo}:#{branch_name}")
-
-      github_client.delete_branch(repo, branch_name)
-      logger.info("Delete branch: #{repo}:#{branch_name}")
-
-      logger.info("Auto merge completed!!")
+      auto_merge(payload)
     end
 
     status 200
@@ -78,6 +64,24 @@ def auto_mergeable?(payload)
   return false if db[:pull_request_history].where(sha: payload["head_commit"]).empty?
 
   true
+end
+
+def auto_marge(payload)
+  pull_request_number = payload["pull_request_number"].to_i
+  repo_name = payload.dig("repository", "name")
+  repo_owner = payload.dig("repository", "owner_name")
+  repo = "#{repo_owner}/#{repo_name}"
+
+  pull_request = github_client.pull_request(repo, pull_request_number)
+  branch_name = pull_request["head"]["ref"]
+
+  github_client.merge_pull_request(repo, pull_request_number)
+  logger.info("Merge branch: #{repo}:#{branch_name}")
+
+  github_client.delete_branch(repo, branch_name)
+  logger.info("Delete branch: #{repo}:#{branch_name}")
+
+  logger.info("Auto merge completed!!")
 end
 
 def db
