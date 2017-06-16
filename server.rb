@@ -27,8 +27,8 @@ post "/" do
 
       if auto_mergeable?(payload)
         pull_request_number = payload["pull_request_number"].to_i
-        repo_name = payload["repository"]["name"]
-        repo_owner = payload["repository"]["owner_name"]
+        repo_name = payload.dig("repository", "name")
+        repo_owner = payload.dig("repository", "owner_name")
         repo = "#{repo_owner}/#{repo_name}"
 
         pull_request = github_client.pull_request(repo, pull_request_number)
@@ -62,7 +62,7 @@ def public_key
     faraday.adapter Faraday.default_adapter
   end
   response = conn.get "/config"
-  JSON.parse(response.body)["config"]["notifications"]["webhook"]["public_key"]
+  JSON.parse(response.body).dig("config", "notifications", "webhook", "public_key")
 rescue
   ''
 end
@@ -75,8 +75,8 @@ def auto_mergeable?(payload)
   return false if payload["type"] != "pull_request"
   return false if payload["result_message"] != "Passed"
   return false if payload["author_name"] != ENV["BOT_NAME"]
-  return false if payload["repository"]["name"] != ENV["REPOSITORY_NAME"]
-  return false if payload["repository"]["owner_name"] != ENV["REPOSITORY_OWNER"]
+  return false if payload.dig("repository", "name") != ENV["REPOSITORY_NAME"]
+  return false if payload.dig("repository", "owner_name") != ENV["REPOSITORY_OWNER"]
   return false if db[:pull_request_history].where(sha: payload["head_commit"]).empty?
 
   true
