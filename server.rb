@@ -7,14 +7,14 @@ require "openssl"
 require "base64"
 require "sequel"
 
-post "/" do
-  # Use one of the following depending on the platform that is sending
-  #   the webhook:
-  # https://api.travis-ci.org
-  # https://api.travis-ci.com
-  DEFAULT_API_HOST = "https://api.travis-ci.org"
-  API_HOST = ENV.fetch("API_HOST", DEFAULT_API_HOST)
+# Use one of the following depending on the platform that is sending
+#   the webhook:
+# https://api.travis-ci.org
+# https://api.travis-ci.com
+DEFAULT_API_HOST = "https://api.travis-ci.org"
+API_HOST = ENV.fetch("API_HOST", DEFAULT_API_HOST)
 
+post "/" do
   begin
     payload = params.fetch("payload", "")
     signature = request.env["HTTP_SIGNATURE"]
