@@ -5,8 +5,8 @@ set -ex
 d=`TZ=UTC date +%Y%m%d%H%M%S`
 
 # set github user config
-git config --global user.name "username"
-git config --global user.email "address"
+git config --global user.name "${BOT_NAME}"
+git config --global user.email "${BOT_ADDRESS}"
 
 rails_clone_url=https://github.com/rails/rails.git
 
