@@ -40,6 +40,8 @@ post "/" do
   begin
     payload = JSON.parse(@payload)
 
+    logger.info(payload)
+
     unless auto_mergeable?(payload)
       halt 200
     end
