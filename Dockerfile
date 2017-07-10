@@ -1,8 +1,5 @@
 FROM ruby:2.4.1-alpine
 
-# throw errors if Gemfile has been modified since Gemfile.lock
-RUN bundle config --global frozen 1
-
 # Set up JST time zone
 RUN apk --update add tzdata && \
     cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
