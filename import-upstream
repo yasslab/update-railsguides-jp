@@ -11,7 +11,7 @@ head_branch_name=${base_branch_name}-${d}
 
 upstream_branch_name=master
 
-ours_files=(.gitignore .travis.yml CODE_OF_CONDUCT.md Gemfile Gemfile.lock guides/rails_guides.rb guides/assets/javascripts/guides.js guides/assets/stylesheets/main.css)
+ours_files=(README.md .gitignore .travis.yml CODE_OF_CONDUCT.md Gemfile Gemfile.lock guides/rails_guides.rb guides/assets/javascripts/guides.js guides/assets/stylesheets/main.css)
 deleted_files=(CONTRIBUTING.md .github/issue_template.md .github/pull_request_template.md .github/stale.yml)
 
 cd /usr/src/railsguides.jp
