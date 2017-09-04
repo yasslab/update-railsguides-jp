@@ -1,5 +1,9 @@
 FROM ruby:2.4.1-alpine
 
+# RubyGems の複数の脆弱性 の回避策
+# https://www.ruby-lang.org/ja/news/2017/08/29/multiple-vulnerabilities-in-rubygems/
+RUN gem update --system
+
 # throw errors if Gemfile has been modified since Gemfile.lock
 RUN bundle config --global frozen 1
 
